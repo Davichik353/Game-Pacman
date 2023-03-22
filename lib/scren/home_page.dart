@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -130,9 +131,17 @@ class _HomePageState extends State<HomePage> {
     72,
     125
   ];
+  List<int> food=[];
   String direction = "right";
+  int score=0;
   void startGame() {
-    Timer.periodic(Duration(microseconds: 150), (timer) {
+    getFood();
+    Duration duration=Duration(milliseconds: 120);
+    Timer.periodic(duration, (timer) {
+      if (food.contains(player)){
+        food.remove(player);
+        score++;
+      }
       switch (direction) {
         case "left":
           moveLeft();
@@ -149,6 +158,13 @@ class _HomePageState extends State<HomePage> {
       }
     });
   }
+  void getFood(){
+    for (int i=0; i<numberOfSquares;i++){
+if(!barriers.contains(i)){
+  food.add(i);
+}
+    }
+  }
 
   void moveLeft() {
     if (!barriers.contains(player - 1)) {
@@ -159,27 +175,27 @@ class _HomePageState extends State<HomePage> {
   }
 
   void moveRight() {
-     if (!barriers.contains(player + 1)) {
-        setState(() {
-          player++;
-        });
-      }
-    
-  }
-  void moveUp() {
-     if (!barriers.contains(player - numberInRow)) {
-        setState(() {
-          player-= numberInRow;
-        });
-      }
+    if (!barriers.contains(player + 1)) {
+      setState(() {
+        player++;
+      });
     }
+  }
+
+  void moveUp() {
+    if (!barriers.contains(player - numberInRow)) {
+      setState(() {
+        player -= numberInRow;
+      });
+    }
+  }
+
   void moveDown() {
-     if (!barriers.contains(player +numberInRow)) {
-        setState(() {
-          player+=numberInRow;
-        });
-      }
-    
+    if (!barriers.contains(player + numberInRow)) {
+      setState(() {
+        player += numberInRow;
+      });
+    }
   }
 
   @override
@@ -217,10 +233,34 @@ class _HomePageState extends State<HomePage> {
                         crossAxisCount: numberInRow),
                     itemBuilder: (BuildContext context, int index) {
                       if (player == index) {
-                        switch(direction){
-                          case 'leaf'
+                        switch (direction) {
+                          case 'leaf':
+                            return Transform.rotate(
+                              angle: pi,
+                              child: MyPlayer(),
+                            );
+                            break;
+
+                          case 'right':
+                            return MyPixel();
+                            break;
+                          case 'up':
+                            return Transform.rotate(
+                              angle: 3*pi / 2,
+                              child: MyPlayer(),
+                            );
+
+                            break;
+                          case 'down':
+                            return Transform.rotate(
+                              angle:  pi / 2,
+                              child: MyPlayer(),
+                            );
+
+                            break;
+                            default: return MyPlayer();
                         }
-                        return MyPlayer();
+                      
                       } else if (barriers.contains(index)) {
                         return MyPixel(
                           innerColor: Colors.red[800],
@@ -244,7 +284,7 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text(
-                    "Очки: ",
+                    "Очки: "+score.toString(),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 40,
